@@ -1,0 +1,29 @@
+Date: 2025-11-27
+
+Task Summary:
+
+* Installed Git and GitHub Desktop
+* Connected Git to VS Code
+* Created index.html and committed initial changes
+
+Details of Work Done:
+
+1. Successfully installed Git (64-bit) and GitHub Desktop.
+2. Configured VS Code to connect with GitHub Desktop.
+3. Created a new project folder and added an index.html file.
+4. Performed first Git commit using GitHub Desktop.
+
+Challenges Encountered:
+
+* None so far.
+
+Learnings:
+
+* Learned how to integrate Git with VS Code.
+* Learned how to make an initial commit in GitHub Desktop.
+
+Next Steps:
+
+* Continue building project structure.
+* Add CSS and JS files.
+* Prepare repository files for future updates.
