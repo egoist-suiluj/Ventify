@@ -1,0 +1,95 @@
+Ventify Firebase & Flutter Setup – Summary Report
+
+Date: 2025-12-02
+Prepared by: Julius Rosco
+
+1️⃣ Node.js & npm Setup
+
+Na-install ang Node.js LTS version.
+
+Na-check ang installation sa CMD/PowerShell:
+
+node -v   → v20.x.x
+npm -v    → 11.6.2
+
+
+Na-install ang Firebase CLI globally:
+
+npm install -g firebase-tools
+
+
+Na-verify ang Firebase CLI:
+
+firebase --version → 14.26.0
+
+2️⃣ Firebase Login via CLI
+
+Nag-login gamit ang terminal:
+
+firebase login
+
+
+Successful login gamit ang Google account: egoist.suiluj@gmail.com
+
+3️⃣ FlutterFire Configuration
+
+Lumipat sa Flutter app folder:
+
+cd D:\Ventify\Ventify\ventify_app
+
+
+Na-run ang initial flutterfire configure
+
+Naka-encounter ng iOS error, kaya napagdesisyunan na i-skip ang iOS.
+
+Gumamit ng non-interactive CLI command sa PowerShell para ma-configure ang Android at Web:
+
+flutterfire configure --project <Firebase_Project_ID> --platforms android,web
+
+
+Na-override ang existing firebase_options.dart file para sa bagong configuration.
+
+4️⃣ Key Notes / Issues & Resolutions
+
+PowerShell interactive prompts bug: Hindi lumalabas ang multi-select platform options → ginamit ang non-interactive command para maiwasan.
+
+Project ID mismatch: Na-resolve sa pamamagitan ng pagkuha ng tamang Project ID sa Firebase Console.
+
+iOS configuration error: Tinanggal ang iOS at pinili lang ang Android at Web.
+
+5️⃣ Next Steps
+
+I-run ang Flutter app sa Android device para ma-test Firebase integration:
+
+flutter run
+
+
+I-test rin sa Web kung gumagana.
+
+Pagkatapos ma-verify, puwede na i-deploy ang app sa Firebase hosting (optional).
+
+----------------------------------------------------------------------------------------------------------
+
+Daily Progress Report: Ventify Project Setup
+
+Petsa: [Current Time: December 2, 2025] Oras na Ginugol: [Ang oras na ginugol mo sa setup] Status: Stable (Ready for Dart Code)
+
+🎯 Layunin Ng Araw:
+Konektahin ang Flutter App sa Firebase at ihanda ang Development Environment.
+
+✅ Natapos na Gawain:
+
+Gawain,Resulta,Key Commands
+Flutter App Connectivity Check,Na-test ang app at successful na na-detect ang device (Chrome).,flutter run
+Firebase Configuration,Naayos ang platform selection para Android at Web lang ang gamitin.,"flutterfire configure --project ventify-project --platforms android,web"
+Dependency Installation,"Na-install ang lahat ng kailangang packages (firebase_core, firebase_auth, http) at nawala ang lahat ng compile errors.",flutter pub get
+Git Commit & Backup,Na-save ang lahat ng changes at configuration (132 files) sa lokal na Git repository.,"git add .  git commit -m ""CHORE: Completed Firebase configuration..."""
+
+🛑 Mga Problemang Na-solve:
+Firebase Command Not Recognized: Naayos sa pamamagitan ng paggamit ng flutterfire at pag-initiate ng login.
+
+Maling Folder: Naayos ang FlutterAppRequiredException sa pamamagitan ng paglipat sa ventify_app folder.
+
+Compile Errors: Na-resolve ang "The method 'FirebaseOptions' isn't defined" errors sa pamamagitan ng pag-update sa pubspec.yaml at pag-run ng flutter pub get.
+
+Terminal Confusion: Naayos ang terminal errors sa pamamagitan ng pag-type lang ng command at hindi ang prompt.
