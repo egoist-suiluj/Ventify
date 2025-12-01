@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "859134129636",
+    "project_id": "ventify-project",
+    "storage_bucket": "ventify-project.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:859134129636:android:e8445583e2892419dd83f1",
+        "android_client_info": {
+          "package_name": "com.example.ventify_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBQUDUl70xFcm0w10wh4Ewe-sdbkSqagYY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
