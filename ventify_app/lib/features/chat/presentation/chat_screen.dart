@@ -1,9 +1,10 @@
-// File: lib/screens/chat_screen.dart (BLUE THEME + FIXES)
+// File: lib/features/chat/presentation/chat_screen.dart (FINAL & COMPLETE)
 
 import 'package:flutter/material.dart';
-import 'package:ventify_app/models/message_model.dart';
-import 'package:ventify_app/services/api_service.dart';
+import 'package:ventify_app/features/chat/data/message.dart';
+import 'package:ventify_app/features/chat/services/chat_service.dart'; // ✅ FIXED IMPORT NAME
 import 'package:ventify_app/main.dart';
+import 'package:ventify_app/common/widgets/ventify_app_title.dart'; // 🚨 NEW WIDGET IMPORT
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -14,13 +15,13 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
-  final ApiService _apiService = ApiService();
+  // 🚨 FIXED: Pinalitan ang ApiService ng ChatService
+  final ChatService _chatService = ChatService();
   final List<Message> _messages = [];
   bool _isLoading = false;
   bool _isWakingUp = true;
 
   // --- COLOR PALETTE (Ventify Blue) ---
-  // Gamitin natin ang kulay na malapit sa icon mo (Royal Blue)
   final Color _ventifyBlue = const Color(0xFF0056D2);
 
   @override
@@ -31,7 +32,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _wakeUpServer() async {
-    await _apiService.wakeUp();
+    await _chatService.wakeUp();
     if (mounted) {
       setState(() {
         _isWakingUp = false;
@@ -73,7 +74,7 @@ class _ChatScreenState extends State<ChatScreen> {
     await storageService.saveMessage(sender: 'user', text: text);
 
     try {
-      final responseText = await _apiService.sendMessage(
+      final responseText = await _chatService.sendMessage(
         message: text,
         history: history,
       );
@@ -109,33 +110,44 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: _ventifyBlue, // 🔵 UPDATED: Ventify Blue
+        backgroundColor: _ventifyBlue,
         elevation: 0,
         centerTitle: false,
         titleSpacing: 20.0,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        // 🚨 TASK 1 & 3 FIX: Custom Logo at Chat Room Label
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            RichText(
-              text: const TextSpan(
+            // 1. Logo at Connecting Status
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const VentifyAppTitle(), // Gagamit ng reusable widget
+                if (_isWakingUp)
+                  const Text("Connecting...",
+                      style: TextStyle(fontSize: 10, color: Colors.white70))
+              ],
+            ),
+
+            // 2. Chat Room Label (Label sa Kanan)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Text(
+                'Chat Room',
                 style: TextStyle(
-                    fontSize: 24, color: Colors.white, fontFamily: 'Sans'),
-                children: [
-                  TextSpan(
-                      text: 'Vent',
-                      style: TextStyle(fontWeight: FontWeight.w900)),
-                  TextSpan(
-                      text: 'ify',
-                      style: TextStyle(fontWeight: FontWeight.w300)),
-                ],
+                    fontSize: 12,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500),
               ),
             ),
-            if (_isWakingUp)
-              const Text("Connecting...",
-                  style: TextStyle(fontSize: 10, color: Colors.white70))
           ],
         ),
       ),
+      // ... (Rest of the body remains the same)
       body: Column(
         children: [
           Expanded(

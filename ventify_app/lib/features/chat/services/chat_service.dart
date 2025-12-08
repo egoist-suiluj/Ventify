@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:ventify_app/constants/api_config.dart';
 
-class ApiService {
+class ChatService {
   // 1. WAKE UP FUNCTION (Ito ang kulang kaya nag-e-error)
   Future<bool> wakeUp() async {
     try {
