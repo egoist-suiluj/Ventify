@@ -1,13 +1,19 @@
+// File: lib/main.dart (Updated with Hive Setup)
+
 import 'package:flutter/material.dart';
 import 'package:ventify_app/screens/chat_screen.dart';
-import 'package:flutter/widgets.dart'; // Add this import
+import 'package:flutter/widgets.dart';
+import 'package:ventify_app/services/storage_service.dart'; // <--- Bagong Import
+
+// Gawin nating accessible ang StorageService sa buong app
+final StorageService storageService = StorageService();
 
 void main() async {
-  // 👈 Gawing 'async'
-  // I-ensure na ready ang Flutter engine bago mag-init ng packages
+  // 1. Tiyakin na ready ang Flutter engine
   WidgetsFlutterBinding.ensureInitialized();
 
-  // TODO: Dito natin ilalagay ang Hive at iba pang initialization sa susunod
+  // 2. 🚨 BAGONG CODE: I-initialize ang Secure Storage at Hive (Encryption)
+  await storageService.init();
 
   runApp(const MyApp());
 }
