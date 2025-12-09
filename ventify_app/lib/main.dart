@@ -13,5 +13,5 @@ void main() async {
   // 2. I-initialize ang secure storage at Hive
   await storageService.init();
 
-  runApp(const VentifyApp()); // Tatawagin ang App Widget sa app.dart
+  runApp(VentifyApp()); // Tatawagin ang App Widget sa app.dart
 }

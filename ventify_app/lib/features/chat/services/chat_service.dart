@@ -1,50 +1,47 @@
-// File: lib/services/api_service.dart
+// File: lib/features/chat/services/chat_service.dart (FINAL WORKING API CODE)
+
+import 'dart:async'; // Para sa Timeout
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:ventify_app/constants/api_config.dart';
+import 'package:ventify_app/constants/api_config.dart'; // ✅ Ating API Config
 
 class ChatService {
-  // 1. WAKE UP FUNCTION (Ito ang kulang kaya nag-e-error)
-  Future<bool> wakeUp() async {
+  Future<void> wakeUp() async {
+    final healthUrl =
+        ApiConfig.baseUrl + ApiConfig.healthEndpoint; // 🚨 FIXED URL
     try {
-      final uri = Uri.parse('${ApiConfig.baseUrl}${ApiConfig.healthEndpoint}');
-      final response = await http.get(uri).timeout(const Duration(seconds: 5));
-      if (response.statusCode == 200) {
-        return true;
-      }
-      return false;
+      await http
+          .get(Uri.parse(healthUrl))
+          .timeout(ApiConfig.connectionTimeout); // ✅ Gumamit ng Duration
     } catch (e) {
-      return false;
+      // Ignore error, server might be asleep
     }
   }
 
-  // 2. SEND MESSAGE FUNCTION
-  Future<String> sendMessage({
-    required String message,
-    required List<Map<String, dynamic>> history,
-  }) async {
-    try {
-      final uri = Uri.parse('${ApiConfig.baseUrl}${ApiConfig.chatEndpoint}');
+  Future<String> sendMessage(
+      {required String message,
+      required List<Map<String, dynamic>> history}) async {
+    final chatUrl = ApiConfig.baseUrl + ApiConfig.chatEndpoint; // 🚨 FIXED URL
 
-      final response = await http
-          .post(
-            uri,
-            headers: {'Content-Type': 'application/json'},
-            body: jsonEncode({
-              'message': message,
-              'history': history,
-            }),
-          )
-          .timeout(ApiConfig.connectionTimeout);
+    final response = await http
+        .post(
+          Uri.parse(chatUrl),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode({
+            'history': history,
+            'message': message,
+          }),
+        )
+        .timeout(ApiConfig.connectionTimeout); // ✅ Gumamit ng Duration
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        return data['response'];
-      } else {
-        throw Exception('Failed to get response');
-      }
-    } catch (e) {
-      throw Exception('Connection error');
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['response'] as String;
+    } else {
+      // 🚨 Para makita mo ang server error status code
+      throw Exception('Failed to load response: ${response.statusCode}');
     }
   }
 }

@@ -1,10 +1,11 @@
-// File: lib/features/chat/presentation/chat_screen.dart (FINAL & COMPLETE)
+// File: lib/features/chat/presentation/chat_screen.dart (FINAL STRUCTURE)
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'; // 🚨 FIX: Para sa Alignment, Container, EdgeInsets
 import 'package:ventify_app/features/chat/data/message.dart';
-import 'package:ventify_app/features/chat/services/chat_service.dart'; // ✅ FIXED IMPORT NAME
+import 'package:ventify_app/features/chat/services/chat_service.dart';
 import 'package:ventify_app/main.dart';
-import 'package:ventify_app/common/widgets/ventify_app_title.dart'; // 🚨 NEW WIDGET IMPORT
+import 'package:ventify_app/common/widgets/ventify_app_title.dart';
+import 'package:ventify_app/constants/colors.dart'; // 🚨 FIX: Para sa VentifyColors
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -15,14 +16,10 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
-  // 🚨 FIXED: Pinalitan ang ApiService ng ChatService
   final ChatService _chatService = ChatService();
-  final List<Message> _messages = [];
+  final List<Message> _messages = []; // 🚨 FIXED: Private variable
   bool _isLoading = false;
   bool _isWakingUp = true;
-
-  // --- COLOR PALETTE (Ventify Blue) ---
-  final Color _ventifyBlue = const Color(0xFF0056D2);
 
   @override
   void initState() {
@@ -110,121 +107,117 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: _ventifyBlue,
+        backgroundColor: VentifyColors.door, // Ginamit ang Door color
         elevation: 0,
         centerTitle: false,
         titleSpacing: 20.0,
-        // 🚨 TASK 1 & 3 FIX: Custom Logo at Chat Room Label
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // 1. Logo at Connecting Status
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const VentifyAppTitle(), // Gagamit ng reusable widget
+                const VentifyAppTitle(),
                 if (_isWakingUp)
                   const Text("Connecting...",
                       style: TextStyle(fontSize: 10, color: Colors.white70))
               ],
             ),
-
-            // 2. Chat Room Label (Label sa Kanan)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: VentifyColors.primaryLight.withOpacity(0.5),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Text(
                 'Chat Room',
                 style: TextStyle(
                     fontSize: 12,
-                    color: Colors.white,
-                    fontWeight: FontWeight.w500),
+                    color: VentifyColors.userText, // White text
+                    fontWeight: FontWeight.w500), // 🚨 FIXED: Comma dito
               ),
             ),
           ],
         ),
       ),
-      // ... (Rest of the body remains the same)
       body: Column(
         children: [
           Expanded(
+              child: Scrollbar(
             child: ListView.builder(
               reverse: true,
-              itemCount: _messages.length,
+              itemCount: _messages.length, // 🚨 FIXED: Gamit ang _messages
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
               itemBuilder: (context, index) {
-                final message = _messages[_messages.length - 1 - index];
+                final message = _messages[_messages.length -
+                    1 -
+                    index]; // 🚨 FIXED: Gamit ang _messages
 
                 return Align(
                   alignment: message.isUser
                       ? Alignment.centerRight
                       : Alignment.centerLeft,
-                  child: Container(
-                    constraints: BoxConstraints(
-                      maxWidth: MediaQuery.of(context).size.width * 0.75,
-                    ),
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    child: Column(
-                      crossAxisAlignment: message.isUser
-                          ? CrossAxisAlignment.end
-                          : CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(
-                              bottom: 4, left: 4, right: 4),
-                          child: Text(
-                            message.isUser ? "You" : "Ventify",
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[600],
-                              fontWeight: FontWeight.bold,
-                            ),
+                  child: Column(
+                    // 🚨 Ito ang nagko-contain ng Label at Bubble
+                    crossAxisAlignment: message.isUser
+                        ? CrossAxisAlignment.end
+                        : CrossAxisAlignment.start,
+                    children: [
+                      // 1. SENDER LABEL FIX (Kailangang visible sa Light Background)
+                      Padding(
+                        padding:
+                            const EdgeInsets.only(bottom: 4, left: 4, right: 4),
+                        child: Text(
+                          message.isUser ? "You" : "Ventify",
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: VentifyColors
+                                .textSecondary, // Standard Medium Gray
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            // 🔵 UPDATED: Chat bubble uses Ventify Blue for user
+                      ),
+
+                      // 2. MESSAGE BUBBLE FIX
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        constraints: BoxConstraints(
+                          maxWidth: MediaQuery.of(context).size.width * 0.75,
+                        ),
+                        margin: const EdgeInsets.symmetric(vertical: 8),
+                        decoration: BoxDecoration(
+                          color: message.isUser
+                              ? VentifyColors.userBubble
+                              : VentifyColors.ventifyBubble,
+                          borderRadius: BorderRadius.only(
+                            topLeft: const Radius.circular(16),
+                            topRight: const Radius.circular(16),
+                            bottomLeft: message.isUser
+                                ? const Radius.circular(16)
+                                : const Radius.circular(4),
+                            bottomRight: message.isUser
+                                ? const Radius.circular(4)
+                                : const Radius.circular(16),
+                          ),
+                        ),
+                        child: Text(
+                          message.text,
+                          style: TextStyle(
+                            // 🚨 Tiyakin na ito ang tama
                             color: message.isUser
-                                ? _ventifyBlue
-                                : Colors.grey[200],
-                            borderRadius: BorderRadius.only(
-                              topLeft: const Radius.circular(20),
-                              topRight: const Radius.circular(20),
-                              bottomLeft: message.isUser
-                                  ? const Radius.circular(20)
-                                  : const Radius.circular(0),
-                              bottomRight: message.isUser
-                                  ? const Radius.circular(0)
-                                  : const Radius.circular(20),
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
-                                  blurRadius: 5,
-                                  offset: const Offset(0, 2))
-                            ],
-                          ),
-                          child: Text(
-                            message.text,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: message.isUser
-                                  ? Colors.white
-                                  : Colors.black87,
-                            ),
+                                ? VentifyColors.userText // White text (#FFFFFF)
+                                : VentifyColors
+                                    .ventifyText, // Dark Gray text (#37474F)
+                            fontSize: 15,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 );
               },
             ),
-          ),
+          )),
           if (_isLoading)
             const Padding(
               padding: EdgeInsets.only(left: 20.0, bottom: 10.0),
@@ -248,15 +241,18 @@ class _ChatScreenState extends State<ChatScreen> {
                   Expanded(
                     child: TextField(
                       controller: _controller,
+                      maxLines: 5, // Max lines limit
+                      minLines: 1,
+                      keyboardType: TextInputType.multiline,
                       decoration: InputDecoration(
                         hintText: "Type a message...",
                         hintStyle: TextStyle(color: Colors.grey[400]),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30.0),
+                          borderRadius: BorderRadius.circular(24),
                           borderSide: BorderSide.none,
                         ),
                         contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 14),
+                            horizontal: 16, vertical: 12),
                         filled: true,
                         fillColor: Colors.grey[100],
                       ),
@@ -264,7 +260,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   const SizedBox(width: 8),
                   CircleAvatar(
-                    backgroundColor: _ventifyBlue, // 🔵 UPDATED: Button is Blue
+                    backgroundColor: VentifyColors.userBubble, // Button color
                     radius: 24,
                     child: IconButton(
                       icon:

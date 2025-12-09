@@ -48,5 +48,5 @@ flutter:
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: false # <--- GINAWA NATING FALSE PARA HINDI NA HANAPIN ANG IPHONE FOLDER
-  image_path: "assets/Venty1.png"
+  image_path: "assets/Venty3.png"
   min_sdk_android: 21

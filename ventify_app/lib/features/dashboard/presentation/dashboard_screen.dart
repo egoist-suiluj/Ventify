@@ -1,10 +1,12 @@
-// File: lib/features/dashboard/presentation/dashboard_screen.dart (FINAL CODE)
-import 'package:ventify_app/features/chat/presentation/chat_screen.dart';
-import 'package:flutter/material.dart';
-// Para sa Logo
-import 'package:ventify_app/common/widgets/ventify_app_title.dart';
+// File: lib/features/dashboard/presentation/dashboard_screen.dart (FINAL STRUCTURE)
 
-// 🚨 UPDATED: Listahan ng Rooms at Descriptions
+import 'package:flutter/material.dart';
+import 'package:ventify_app/common/widgets/ventify_app_title.dart';
+import 'package:ventify_app/common/widgets/door_card.dart';
+import 'package:ventify_app/features/chat/presentation/chat_screen.dart'; // 🚨 FIX: ChatScreen Import
+import 'package:ventify_app/constants/colors.dart'; // 🚨 FIX: VentifyColors Import
+
+// Listahan ng Rooms
 final List<Map<String, String>> rooms = const [
   {'name': 'Chat Room', 'subtitle': 'Vent & Connect', 'screen': 'chat'},
   {'name': 'Voice Room', 'subtitle': 'Speak & Share', 'screen': 'voice'},
@@ -19,136 +21,66 @@ final List<Map<String, String>> rooms = const [
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 
+  // File: lib/features/dashboard/presentation/dashboard_screen.dart (UPDATED ANIMATION)
+
+  void _openRoom(BuildContext context, Widget screen) {
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (_, __, ___) => screen,
+        transitionDuration: const Duration(milliseconds: 600),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          // 🚨 FIXED: Sliding Door Effect
+          const begin = Offset(1.0, 0.0); // Magmumula sa kanan
+          const end = Offset.zero; // Papasok sa gitna
+          const curve = Curves.easeOutCubic;
+
+          var tween =
+              Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+          return SlideTransition(
+            position: animation.drive(tween),
+            child: child,
+          );
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Standard Ventify Blue Color
-    const Color ventifyBlue = Color(0xFF0056D2);
-
     return Scaffold(
       appBar: AppBar(
-        // 🚨 TASK 1: Custom Logo Title
         title: const VentifyAppTitle(),
-        backgroundColor: ventifyBlue,
+        backgroundColor: VentifyColors.door, // Door color
         elevation: 0,
       ),
       body: GridView.builder(
-          padding: const EdgeInsets.all(16),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-            childAspectRatio:
-                1.05, // Adjusted aspect ratio for better door look
-          ),
-          itemCount: rooms.length,
-          itemBuilder: (context, index) {
-            final room = rooms[index];
-            final isChat = index == 0;
-            const Color ventifyBlue = Color(0xFF0056D2);
+        padding: const EdgeInsets.all(16),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
+          childAspectRatio: 1.05,
+        ),
+        itemCount: rooms.length,
+        itemBuilder: (context, index) {
+          final room = rooms[index];
 
-            return InkWell(
-              // Pinalitan ang Card ng InkWell para mawala ang puting box
-              borderRadius: BorderRadius.circular(16),
-              onTap: () {
-                // Magne-navigate tayo dito sa next step!
-                if (index == 0) {
-                  // Chat Room ang index 0
-                  Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const ChatScreen()));
-                }
-              },
-              child: Container(
-                // Ito ang box na naglalaman ng Door
-                decoration: BoxDecoration(
-                  color:
-                      Colors.white, // Background color (Putol ang puting box)
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 10,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: Stack(
-                  children: [
-                    // 1. Door Design (Adjusted Height)
-                    Align(
-                      alignment: Alignment.topCenter,
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                            top: 15.0), // Nagbigay ng space sa taas
-                        child: Container(
-                          width: 80,
-                          height: 100, // Bahagyang nilakihan
-                          decoration: BoxDecoration(
-                            color: isChat
-                                ? ventifyBlue.withOpacity(0.9)
-                                : Colors.blue.shade800.withOpacity(0.7),
-                            borderRadius: const BorderRadius.vertical(
-                                top: Radius.circular(10),
-                                bottom: Radius.circular(
-                                    5)), // Binawasan ang bottom curve
-                          ),
-                          child: Center(
-                            // Door Handle (Pinakamaliit na yellow dot)
-                            child: Container(
-                              width: 8,
-                              height: 8,
-                              decoration: BoxDecoration(
-                                  color: Colors.amber.shade300,
-                                  shape: BoxShape.circle),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    // 2. Text Overlay (Binaba ang placement ng text)
-                    Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Room Name Label (Top Right)
-                          Align(
-                            alignment: Alignment.topRight,
-                            child: Text(
-                              room['name']!,
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey.shade600,
-                                  fontWeight: FontWeight.w500),
-                            ),
-                          ),
-                          const Spacer(), // Ito ang nagtutulak sa text sa baba
-
-                          // Main Title (Name of the Feature)
-                          Text(
-                            room['name']!,
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: isChat ? ventifyBlue : Colors.black87,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
-                          // Subtitle (Description)
-                          Text(
-                            room['subtitle']!,
-                            style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey.shade600,
-                                fontWeight: FontWeight.w500),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }),
+          return DoorCard(
+            title: room['name']!,
+            subtitle: room['subtitle']!,
+            onTap: () {
+              if (index == 0) {
+                _openRoom(context, const ChatScreen());
+              } else if (index == 1) {
+                // VoiceScreen is a placeholder. You need to create lib/features/voice/presentation/voice_screen.dart
+                // _openRoom(context, const VoiceScreen());
+              }
+            },
+          );
+        },
+      ),
     );
   }
 }
