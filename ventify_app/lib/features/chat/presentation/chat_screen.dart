@@ -1,11 +1,11 @@
-// File: lib/features/chat/presentation/chat_screen.dart (FINAL STRUCTURE)
+// File: lib/features/chat/presentation/chat_screen.dart
 
-import 'package:flutter/material.dart'; // 🚨 FIX: Para sa Alignment, Container, EdgeInsets
+import 'package:flutter/material.dart';
 import 'package:ventify_app/features/chat/data/message.dart';
 import 'package:ventify_app/features/chat/services/chat_service.dart';
-import 'package:ventify_app/main.dart';
+import 'package:ventify_app/main.dart'; // Para sa storageService
 import 'package:ventify_app/common/widgets/ventify_app_title.dart';
-import 'package:ventify_app/constants/colors.dart'; // 🚨 FIX: Para sa VentifyColors
+import 'package:ventify_app/constants/colors.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -17,7 +17,7 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
   final ChatService _chatService = ChatService();
-  final List<Message> _messages = []; // 🚨 FIXED: Private variable
+  final List<Message> _messages = [];
   bool _isLoading = false;
   bool _isWakingUp = true;
 
@@ -48,6 +48,7 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
+  // Dito ang logic ng pag-send (UI side)
   Future<void> _sendMessage() async {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
@@ -61,6 +62,7 @@ class _ChatScreenState extends State<ChatScreen> {
             })
         .toList();
 
+    // Update UI agad
     setState(() {
       _messages
           .add(Message(text: text, isUser: true, timestamp: DateTime.now()));
@@ -71,9 +73,11 @@ class _ChatScreenState extends State<ChatScreen> {
     await storageService.saveMessage(sender: 'user', text: text);
 
     try {
+      // 🚨 DITO TATAWAGIN ANG SERVICE at IPAPASA ANG GENDER ('male')
       final responseText = await _chatService.sendMessage(
         message: text,
         history: history,
+        userGender: 'male', // ✅ Gender value
       );
 
       if (mounted) {
@@ -107,23 +111,20 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: VentifyColors.door, // Ginamit ang Door color
+        backgroundColor: VentifyColors.door,
         elevation: 0,
-        centerTitle: false,
-        titleSpacing: 20.0,
+        titleSpacing: 0,
         title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const VentifyAppTitle(),
-                if (_isWakingUp)
-                  const Text("Connecting...",
-                      style: TextStyle(fontSize: 10, color: Colors.white70))
-              ],
-            ),
+            const SizedBox(width: 8),
+            const VentifyAppTitle(),
+            const SizedBox(width: 10),
+            if (_isWakingUp)
+              const Text("Connecting...",
+                  style: TextStyle(fontSize: 10, color: Colors.white70)),
+            const Spacer(),
             Container(
+              margin: const EdgeInsets.only(right: 16),
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
                 color: VentifyColors.primaryLight.withOpacity(0.5),
@@ -133,8 +134,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 'Chat Room',
                 style: TextStyle(
                     fontSize: 12,
-                    color: VentifyColors.userText, // White text
-                    fontWeight: FontWeight.w500), // 🚨 FIXED: Comma dito
+                    color: VentifyColors.userText,
+                    fontWeight: FontWeight.w500),
               ),
             ),
           ],
@@ -143,81 +144,78 @@ class _ChatScreenState extends State<ChatScreen> {
       body: Column(
         children: [
           Expanded(
-              child: Scrollbar(
-            child: ListView.builder(
-              reverse: true,
-              itemCount: _messages.length, // 🚨 FIXED: Gamit ang _messages
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-              itemBuilder: (context, index) {
-                final message = _messages[_messages.length -
-                    1 -
-                    index]; // 🚨 FIXED: Gamit ang _messages
+            child: Scrollbar(
+              // Scrollbar added
+              child: ListView.builder(
+                reverse: true,
+                itemCount: _messages.length,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                itemBuilder: (context, index) {
+                  final message = _messages[_messages.length - 1 - index];
 
-                return Align(
-                  alignment: message.isUser
-                      ? Alignment.centerRight
-                      : Alignment.centerLeft,
-                  child: Column(
-                    // 🚨 Ito ang nagko-contain ng Label at Bubble
-                    crossAxisAlignment: message.isUser
-                        ? CrossAxisAlignment.end
-                        : CrossAxisAlignment.start,
-                    children: [
-                      // 1. SENDER LABEL FIX (Kailangang visible sa Light Background)
-                      Padding(
-                        padding:
-                            const EdgeInsets.only(bottom: 4, left: 4, right: 4),
-                        child: Text(
-                          message.isUser ? "You" : "Ventify",
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: VentifyColors
-                                .textSecondary, // Standard Medium Gray
-                            fontWeight: FontWeight.bold,
+                  return Align(
+                    alignment: message.isUser
+                        ? Alignment.centerRight
+                        : Alignment.centerLeft,
+                    child: Column(
+                      crossAxisAlignment: message.isUser
+                          ? CrossAxisAlignment.end
+                          : CrossAxisAlignment.start,
+                      children: [
+                        // Sender Label
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              bottom: 4, left: 4, right: 4),
+                          child: Text(
+                            message.isUser ? "You" : "Ventify",
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: VentifyColors.textSecondary,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                      ),
-
-                      // 2. MESSAGE BUBBLE FIX
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        constraints: BoxConstraints(
-                          maxWidth: MediaQuery.of(context).size.width * 0.75,
-                        ),
-                        margin: const EdgeInsets.symmetric(vertical: 8),
-                        decoration: BoxDecoration(
-                          color: message.isUser
-                              ? VentifyColors.userBubble
-                              : VentifyColors.ventifyBubble,
-                          borderRadius: BorderRadius.only(
-                            topLeft: const Radius.circular(16),
-                            topRight: const Radius.circular(16),
-                            bottomLeft: message.isUser
-                                ? const Radius.circular(16)
-                                : const Radius.circular(4),
-                            bottomRight: message.isUser
-                                ? const Radius.circular(4)
-                                : const Radius.circular(16),
+                        // Message Bubble
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          constraints: BoxConstraints(
+                            maxWidth: MediaQuery.of(context).size.width * 0.75,
                           ),
-                        ),
-                        child: Text(
-                          message.text,
-                          style: TextStyle(
-                            // 🚨 Tiyakin na ito ang tama
+                          margin: const EdgeInsets.symmetric(vertical: 8),
+                          decoration: BoxDecoration(
                             color: message.isUser
-                                ? VentifyColors.userText // White text (#FFFFFF)
-                                : VentifyColors
-                                    .ventifyText, // Dark Gray text (#37474F)
-                            fontSize: 15,
+                                ? VentifyColors.userBubble
+                                : VentifyColors.ventifyBubble,
+                            borderRadius: BorderRadius.only(
+                              topLeft: const Radius.circular(16),
+                              topRight: const Radius.circular(16),
+                              bottomLeft: message.isUser
+                                  ? const Radius.circular(16)
+                                  : const Radius.circular(4),
+                              bottomRight: message.isUser
+                                  ? const Radius.circular(4)
+                                  : const Radius.circular(16),
+                            ),
+                          ),
+                          child: Text(
+                            message.text,
+                            style: TextStyle(
+                              color: message.isUser
+                                  ? VentifyColors.userText
+                                  : VentifyColors.ventifyText,
+                              fontSize: 15,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                );
-              },
+                      ],
+                    ),
+                  );
+                },
+              ),
             ),
-          )),
+          ),
+          // Loading indicator
           if (_isLoading)
             const Padding(
               padding: EdgeInsets.only(left: 20.0, bottom: 10.0),
@@ -230,6 +228,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         fontSize: 12)),
               ),
             ),
+          // Text Input Area
           SafeArea(
             top: false,
             bottom: true,
@@ -241,7 +240,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   Expanded(
                     child: TextField(
                       controller: _controller,
-                      maxLines: 5, // Max lines limit
+                      maxLines: 5,
                       minLines: 1,
                       keyboardType: TextInputType.multiline,
                       decoration: InputDecoration(
@@ -260,7 +259,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   const SizedBox(width: 8),
                   CircleAvatar(
-                    backgroundColor: VentifyColors.userBubble, // Button color
+                    backgroundColor: VentifyColors.userBubble,
                     radius: 24,
                     child: IconButton(
                       icon:
